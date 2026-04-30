@@ -41,4 +41,4 @@ jobs:
           az containerapp update \
               --name shayure \
               --resource-group doctor-app \
-              --image vigneshs9899/doctor-app:latest
+              --image vignesh9899/doctor-app:latest
