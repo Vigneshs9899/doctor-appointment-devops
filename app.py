@@ -63,6 +63,20 @@ def add_appointment():
     appointments.append(data)
     return jsonify(data), 201
 
+#delete
+@app.route('/appointments/<int:id>', methods=['DELETE'])
+def delete_appointment(id):
+    cursor.execute("DELETE FROM appointments WHERE id = %s", (id,))
+    conn.commit()
+    return jsonify({"message": "deleted"})
+
+#delete function
+async function remove(id) {
+    await fetch(`/appointments/${id}`, { method: 'DELETE' });
+    load();
+}
+
+
 
 # GET
 @app.route('/appointments', methods=['GET'])
