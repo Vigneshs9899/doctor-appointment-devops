@@ -1,35 +1,40 @@
 import time
-import os
 import psycopg2
+import os
 from flask import Flask, jsonify, request
 
-# Wait for DB
-while True:
-    try:
-        conn = psycopg2.connect(
-        host="db",
-        database=os.getenv("POSTGRES_DB"),
-        user=os.getenv("POSTGRES_USER"),
-        password=os.getenv("POSTGRES_PASSWORD")
-    )
-        break
-    except:
-        print("Waiting for database...")
-        time.sleep(2)
-
-cursor = conn.cursor()
-
-# Create table
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS appointments (
-    id SERIAL PRIMARY KEY,
-    name TEXT,
-    doctor TEXT
-)
-""")
-conn.commit()
-
 app = Flask(__name__)
+
+conn = None
+cursor = None
+
+# Try DB connection (but don't crash if fails)
+try:
+    conn = psycopg2.connect(
+        host=os.getenv("DB_HOST", "db"),  # default for docker
+        database=os.getenv("POSTGRES_DB", "appointments_db"),
+        user=os.getenv("POSTGRES_USER", "admin"),
+        password=os.getenv("POSTGRES_PASSWORD", "admin123")
+    )
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS appointments (
+        id SERIAL PRIMARY KEY,
+        name TEXT,
+        doctor TEXT
+    )
+    """)
+    conn.commit()
+
+    print("Connected to database ✅")
+
+except Exception as e:
+    print("Database not available, running without DB ❌")
+    print(e)
+
+# fallback memory storage
+appointments = []
 
 # POST
 @app.route('/appointments', methods=['POST'])
@@ -39,32 +44,42 @@ def add_appointment():
     if not data:
         return jsonify({"error": "No data"}), 400
 
-    cursor.execute(
-        "INSERT INTO appointments (name, doctor) VALUES (%s, %s) RETURNING id",
-        (data['name'], data['doctor'])
-    )
-    new_id = cursor.fetchone()[0]
-    conn.commit()
+    # If DB available
+    if cursor:
+        cursor.execute(
+            "INSERT INTO appointments (name, doctor) VALUES (%s, %s) RETURNING id",
+            (data['name'], data['doctor'])
+        )
+        new_id = cursor.fetchone()[0]
+        conn.commit()
 
-    return jsonify({"id": new_id, "message": "added"}), 201
+        return jsonify({"id": new_id, "message": "added"}), 201
+
+    # fallback
+    data['id'] = len(appointments) + 1
+    appointments.append(data)
+    return jsonify(data), 201
 
 
 # GET
 @app.route('/appointments', methods=['GET'])
 def get_appointments():
-    cursor.execute("SELECT * FROM appointments")
-    rows = cursor.fetchall()
+    if cursor:
+        cursor.execute("SELECT * FROM appointments")
+        rows = cursor.fetchall()
 
-    result = []
-    for row in rows:
-        result.append({
-            "id": row[0],
-            "name": row[1],
-            "doctor": row[2]
-        })
+        result = []
+        for row in rows:
+            result.append({
+                "id": row[0],
+                "name": row[1],
+                "doctor": row[2]
+            })
+        return jsonify(result)
 
-    return jsonify(result)
+    return jsonify(appointments)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
