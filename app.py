@@ -13,13 +13,13 @@ def home():
 conn = None
 cursor = None
 
-# Try DB connection (but don't crash if fails)
 try:
     conn = psycopg2.connect(
-        host=os.getenv("DB_HOST", "db"),  # default for docker
-        database=os.getenv("POSTGRES_DB", "appointments_db"),
-        user=os.getenv("POSTGRES_USER", "admin"),
-        password=os.getenv("POSTGRES_PASSWORD", "admin123")
+        host=os.getenv("DB_HOST"),
+        database=os.getenv("POSTGRES_DB", "postgres"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        port=5432
     )
     cursor = conn.cursor()
 
@@ -32,12 +32,10 @@ try:
     """)
     conn.commit()
 
-    print("Connected to database ✅")
+    print("Connected to Azure DB ✅")
 
 except Exception as e:
-    print("Database not available, running without DB ❌")
-    print(e)
-
+    print("DB connection failed ❌", e)
 # fallback memory storage
 appointments = []
 
