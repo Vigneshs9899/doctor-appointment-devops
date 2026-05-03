@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Doctor Appointment</title>
+</head>
+<body>
+
+<h2>Book Appointment</h2>
+
+<input id="name" placeholder="Your Name">
+<input id="doctor" placeholder="Doctor Name">
+<button onclick="book()">Book</button>
+
+<h3>Appointments</h3>
+<ul id="list"></ul>
+
+<script>
+async function load() {
+    let res = await fetch('/appointments');
+    let data = await res.json();
+
+    let list = document.getElementById('list');
+    list.innerHTML = '';
+
+    data.forEach(a => {
+        let li = document.createElement('li');
+        li.innerText = a.name + " - " + a.doctor;
+        list.appendChild(li);
+    });
+}
+
+async function book() {
+    let name = document.getElementById('name').value;
+    let doctor = document.getElementById('doctor').value;
+
+    await fetch('/appointments', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, doctor})
+    });
+
+    load();
+}
+
+load();
+</script>
+
+</body>
+</html>
