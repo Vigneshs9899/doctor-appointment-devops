@@ -69,6 +69,11 @@ async function load() {
     }
 }
 
+async function remove(id) {
+    await fetch(`/appointments/${id}`, { method: 'DELETE' });
+    load();
+}
+
 async function book() {
     let name = document.getElementById('name').value.trim();
     let doctor = document.getElementById('doctor').value.trim();

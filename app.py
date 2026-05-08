@@ -70,13 +70,6 @@ def delete_appointment(id):
     conn.commit()
     return jsonify({"message": "deleted"})
 
-#delete function
-async function remove(id) {
-    await fetch(`/appointments/${id}`, { method: 'DELETE' });
-    load();
-}
-
-
 
 # GET
 @app.route('/appointments', methods=['GET'])
