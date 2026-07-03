@@ -30,6 +30,7 @@ from werkzeug.security import (
 import time
 import psycopg2
 import os
+from dotenv import load_dotenv
 from flask import send_file
 
 app = Flask(__name__)
@@ -56,7 +57,8 @@ while True:
             database=os.getenv("DB_NAME"),
             user=os.getenv("DB_USER"),
             password=os.getenv("DB_PASSWORD"),
-            port=os.getenv("DB_PORT", "5432")
+            port=os.getenv("DB_PORT", "5432"),
+            sslmode="require"
         )
 
         cursor = conn.cursor()
