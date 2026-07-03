@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Patient Report
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+
+    <h2 class="mb-4">
+        Medical Consultation Report
+    </h2>
+
+    <table class="table table-bordered">
+
+        <tr>
+            <th>Patient</th>
+            <td>{{ appointment[1] }}</td>
+        </tr>
+
+        <tr>
+            <th>Doctor</th>
+            <td>{{ appointment[2] }}</td>
+        </tr>
+
+        <tr>
+            <th>Appointment Time</th>
+            <td>{{ appointment[3] }}</td>
+        </tr>
+
+        <tr>
+            <th>Status</th>
+            <td>{{ appointment[5] }}</td>
+        </tr>
+
+        <tr>
+            <th>Symptoms</th>
+            <td>{{ appointment[7] }}</td>
+        </tr>
+
+        <tr>
+            <th>Diagnosis</th>
+            <td>{{ appointment[10] }}</td>
+        </tr>
+
+        <tr>
+            <th>Prescription</th>
+            <td>{{ appointment[8] }}</td>
+        </tr>
+
+        <tr>
+            <th>Doctor Notes</th>
+            <td>{{ appointment[9] }}</td>
+        </tr>
+
+        <tr>
+            <th>Follow-up Date</th>
+            <td>{{ appointment[6] }}</td>
+        </tr>
+
+    </table>
+
+    <a href="/dashboard" class="btn btn-primary">
+        Back
+    </a>
+    <a href="/report/{{ appointment[0] }}/pdf" class="btn btn-success">
+        Download Prescription PDF
+    </a>
+
+</div>
+
+{% endblock %}

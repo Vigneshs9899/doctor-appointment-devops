@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block title %}
+Patient Consultation
+{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+    <div class="card shadow p-4">
+
+        <h2 class="mb-4">
+            🩺 Patient Consultation
+        </h2>
+
+        <hr>
+
+        <div class="row">
+
+            <div class="col-md-6">
+
+                <form method="POST">
+
+
+
+                    <label class="fw-bold">Patient Name</label>
+
+                    <input class="form-control" value="{{ appointment[1] }}" readonly>
+
+            </div>
+
+            <div class="col-md-6">
+
+                <label class="fw-bold">Doctor</label>
+
+                <input class="form-control" value="{{ appointment[2] }}" readonly>
+
+            </div>
+
+        </div>
+
+        <br>
+
+        <label class="fw-bold">
+            Appointment Time
+        </label>
+
+        <input class="form-control" value="{{ appointment[3] }}" readonly>
+
+        <br>
+
+        <label class="fw-bold">
+            Symptoms
+        </label>
+
+        <textarea class="form-control" rows="4" readonly>{{ appointment[7] }}</textarea>
+
+        <br>
+
+        <label class="fw-bold">
+            Diagnosis
+        </label>
+
+        <textarea class="form-control" rows="3" name="diagnosis">{{ appointment[10] or "" }}</textarea>
+
+        <br>
+
+        <label class="fw-bold">
+            Prescription
+        </label>
+
+        <textarea class="form-control" rows="3" name="prescription">{{ appointment[8] or "" }}</textarea>
+
+        <br>
+
+        <label class="fw-bold">
+            Doctor Notes
+        </label>
+
+        <textarea class="form-control" rows="3" name="doctor_notes">{{ appointment[9] or "" }}</textarea>
+
+        <br>
+
+        <label class="fw-bold">
+            Follow-up Date
+        </label>
+
+        <input type="date" class="form-control" name="followup_date" value="{{ appointment[6] }}">
+
+        <br>
+
+        <label class="fw-bold">
+            Status
+        </label>
+
+        <select class="form-select" name="status">
+
+            <option value="Pending" {% if appointment[5]=="Pending" %}selected{% endif %}>
+                Pending
+            </option>
+
+            <option value="Completed" {% if appointment[5]=="Completed" %}selected{% endif %}>
+                Completed
+            </option>
+
+            <option value="Cancelled" {% if appointment[5]=="Cancelled" %}selected{% endif %}>
+                Cancelled
+            </option>
+
+        </select>
+
+        <br>
+
+        <button type="submit" class="btn btn-success">
+            Save Consultation
+        </button>
+
+        <a href="/doctor" class="btn btn-secondary">
+
+            Back
+
+
+        </a>
+        </form>
+    </div>
+
+</div>
+
+{% endblock %}

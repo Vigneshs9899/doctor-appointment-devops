@@ -1,0 +1,353 @@
+{% extends "base.html" %}
+
+{% block title %}
+Doctor Dashboard
+{% endblock %}
+
+{% block content %}
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-success shadow">
+
+    <div class="container">
+
+        <a class="navbar-brand fw-bold">
+            🌿 Doctor Dashboard
+        </a>
+
+        <div class="ms-auto">
+
+            <span class="text-white me-3">
+                Welcome, Dr. {{ session['user'] }}
+            </span>
+
+            <a href="/logout" class="btn btn-light btn-sm">
+                Logout
+            </a>
+
+        </div>
+
+    </div>
+
+</nav>
+
+<div class="container py-5">
+
+    <h1 class="fw-bold text-success">
+        🌿 Doctor Dashboard
+    </h1>
+
+    <p class="text-muted">
+        Welcome Dr. {{ session['user'] }}
+    </p>
+
+    <div class="row mt-5">
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow text-center p-4">
+                <div class="display-5">
+                    👥
+                </div>
+                <h2>{{ total }}</h2>
+                <p class="text-muted">Patients</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow text-center p-4">
+                <div class="display-5">
+                    ⏳
+                </div>
+                <h2>{{ pending }}</h2>
+                <p class="text-warning">Pending</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow text-center p-4">
+                <div class="display-5">
+                    ✅
+                </div>
+                <h2>{{ completed }}</h2>
+                <p class="text-success">Completed</p>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-3">
+            <div class="card shadow text-center p-4">
+                <div class="display-5">
+                    📅
+                </div>
+                <h2>{{ today }}</h2>
+                <p class="text-primary">Today's Appointments</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row mt-5 g-4">
+
+        <div class="col-md-6">
+
+            <div class="card shadow p-4 h-100">
+
+                <h5 class="text-center">
+                    Appointment Status
+                </h5>
+
+                <canvas id="statusChart" height="220"></canvas>
+
+            </div>
+
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="card shadow p-4 h-100">
+
+                <h5 class="text-center">
+                    Monthly Appointments
+                </h5>
+
+                <canvas id="monthlyChart" height="220"></canvas>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <h3 class="mt-5 mb-3">
+        Recent Appointments
+    </h3>
+
+    <table class="table table-hover shadow">
+
+        <thead class="table-success">
+
+            <tr>
+
+                <th>Patient</th>
+
+                <th>Doctor</th>
+
+                <th>Date & Time</th>
+
+                <th>Status</th>
+
+                <th>Action</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+
+            {% for appointment in appointments %}
+
+            <tr>
+
+                <td>{{ appointment[1] }}</td>
+
+                <td>{{ appointment[2] }}</td>
+
+                <td> {{ appointment[3].strftime("%d %b %Y %I:%M %p") }}</td>
+
+                <td>
+                    {% if appointment[4] == "Pending" %}
+                    <span class="badge bg-warning">
+                        Pending
+                    </span>
+
+                    {% elif appointment[4] == "Completed" %}
+                    <span class="badge bg-success">
+                        Completed
+                    </span>
+
+                    {% elif appointment[4] == "Cancelled" %}
+                    <span class="badge bg-danger">
+                        Cancelled
+                    </span>
+                    {% endif %}
+                </td>
+
+                <td>
+                    <a href="/consultation/{{ appointment[0] }}" class="btn btn-success btn-sm">
+                        View
+                    </a>
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+
+let statusLabels = {{ status_chart | map(attribute=0) | list | tojson }};
+let statusData   = {{ status_chart | map(attribute=1) | list | tojson }};
+
+new Chart(document.getElementById("statusChart"), {
+
+    type: "bar",
+
+    data: {
+
+        labels: statusLabels,
+
+        datasets: [{
+
+            label: "Appointments",
+
+            data: statusData,
+
+            backgroundColor: [
+                "#198754",
+                "#ffc107",
+                "#dc3545"
+            ],
+
+            borderRadius: 12,
+            borderSkipped: false,
+            barThickness: 40
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        indexAxis: "y",
+
+        plugins: {
+
+            legend: {
+                display: false
+            },
+
+            title: {
+                display: true,
+                text: "Appointment Status Distribution",
+                font: {
+                    size: 18,
+                    weight: "bold"
+                }
+            }
+
+        },
+
+        scales: {
+
+            x: {
+                beginAtZero: true,
+                grid: {
+                    color: "#eeeeee"
+                }
+            },
+
+            y: {
+                grid: {
+                    display: false
+                }
+            }
+
+        }
+
+    }
+
+});
+
+
+const monthLabels = {{ monthly_chart | map(attribute=0) | list | tojson }};
+const monthData   = {{ monthly_chart | map(attribute=1) | list | tojson }};
+
+new Chart(document.getElementById("monthlyChart"), {
+
+    type: "line",
+
+    data: {
+
+        labels: monthLabels,
+
+        datasets: [{
+
+            label: "Appointments",
+
+            data: monthData,
+
+            borderColor: "#198754",
+
+            backgroundColor: "rgba(25,135,84,0.15)",
+
+            fill: true,
+
+            tension: 0.4,
+
+            pointRadius: 6,
+
+            pointHoverRadius: 8,
+
+            pointBackgroundColor: "#198754",
+
+            borderWidth: 3
+
+        }]
+
+    },
+
+    options: {
+
+        responsive: true,
+
+        plugins: {
+
+            legend: {
+                display: false
+            },
+
+            title: {
+                display: true,
+                text: "Monthly Appointment Trend",
+                font: {
+                    size: 18,
+                    weight: "bold"
+                }
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true,
+
+                grid: {
+                    color: "#eeeeee"
+                }
+
+            },
+
+            x: {
+
+                grid: {
+                    display: false
+                }
+
+            }
+
+        }
+
+    }
+
+});
+
+</script>
+{% endblock %}
